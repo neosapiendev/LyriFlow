@@ -11,183 +11,281 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    
 </head>
 <body class="dark">
-    <div class="menu-container">
-        <button class="menu-toggle" onclick="toggleMenuCollapse()" title="Toggle Menu">▼</button>
-        <header>
-            <button id="playPauseBtn" onclick="togglePlay()">⏯️ Play/Pause</button>
-            <button id="slowerBtn" onclick="changeSpeed(-0.5)">🐢 Slower</button>
-            <button id="fasterBtn" onclick="changeSpeed(0.5)">🐇 Faster</button>
-            <button id="fontPlusBtn" onclick="changeFont(2)">A+</button>
-            <button id="fontMinusBtn" onclick="changeFont(-2)">A-</button>
-            <button id="loadTextBtn" onclick="openPopup()">📄 Load Text</button>
-
-            <select id="themeSelect" onchange="setTheme(this.value)">
-                <option value="dark">🌙 Dark</option>
-                <option value="light">☀️ Light</option>
-                <option value="neon">💡 Neon</option>
-            </select>
-
-            <button id="fullscreenBtn" onclick="toggleFullscreen()">🖥️ Fullscreen</button>
-            <button id="recordBtn" class="record-btn" onclick="showRecordingOptions()">⏺ Record</button>
-        </header>
+    <div class="app-container">
+<!-- Branding Banner instead of Menu Bar -->
+<div class="branding-banner">
+    <div class="branding-content">
+        <div class="branding-left">
+            <span class="branding-logo">🎤</span>
+            <span class="branding-name">LyricFlow</span>
+            <span class="branding-tagline">Scroll with the rhythm</span>
+        </div>
     </div>
+</div>
 
-    <div id="viewer">
-        <div id="scrollText"></div>
+<!-- YouTube-style Video Player -->
+<div class="video-player-container">
+    <div class="video-player" id="videoPlayer">
+        <!-- Video Screen -->
+        <div id="viewer" class="video-screen" tabindex="0">
+            <div id="scrollText"></div>
+        </div>
+        
+        <!-- Center play button (shows when paused) -->
+        <div class="center-play-btn" id="centerPlayBtn" onclick="togglePlay()">
+            <svg viewBox="0 0 24 24" width="48" height="48">
+                <path d="M8 5v14l11-7z" fill="white"/>
+            </svg>
+        </div>
+        
+        <!-- YouTube-style Fixed Control Bar -->
+        <div class="video-control-bar" id="videoControlBar">
+            <div class="control-bar-content">
+                <!-- Progress Bar -->
+                <div class="progress-container" id="progressContainer" onclick="seekFromProgress(event)">
+                    <div class="progress-bg">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        <div class="progress-handle" id="progressHandle"></div>
+                    </div>
+                </div>
+                
+                <!-- Control Buttons Row -->
+                <div class="controls-row">
+                    <div class="left-controls">
+                        <!-- Play/Pause -->
+                        <button class="control-btn" onclick="togglePlay()" id="playBtn" title="Play/Pause (Space)">
+                            ⏸️
+                        </button>
+                        
+                        <!-- Speed Control -->
+                        <button class="control-btn" onclick="changeSpeed(-0.25)" title="Decrease Speed">
+                            −
+                        </button>
+                        <span class="control-badge" id="speedDisplay">1.0x</span>
+                        <button class="control-btn" onclick="changeSpeed(0.25)" title="Increase Speed">
+                            +
+                        </button>
+                        
+                        <!-- Time Display -->
+                        <span class="time-indicator" id="timeDisplay">0:00 / 0:00</span>
+                    </div>
+                    
+                    <div class="right-controls">
+                        <!-- Font Size -->
+                        <button class="control-btn" onclick="changeFont(-2)" title="Decrease Font Size">
+                            A−
+                        </button>
+                        <span class="control-badge" id="fontDisplay">32px</span>
+                        <button class="control-btn" onclick="changeFont(2)" title="Increase Font Size">
+                            A+
+                        </button>
+                        
+                        <!-- Content Button with Dropdown -->
+                        <div class="dropdown-container">
+                            <button class="control-btn" onclick="toggleContentDropdown()" title="Load Content" id="contentBtn">
+                                📄
+                            </button>
+                            <div class="dropdown-menu" id="contentDropdown">
+                                <div class="dropdown-item" onclick="openPopup()">
+                                    <span>📝 Edit Text</span>
+                                </div>
+                                <div class="dropdown-item" onclick="document.getElementById('fileInput').click()">
+                                    <span>📁 Browse File</span>
+                                </div>
+                                <div class="dropdown-item" onclick="loadSampleContent()">
+                                    <span>✨ Load Sample</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Theme Selector -->
+                        <div class="dropdown-container">
+                            <button class="control-btn" onclick="toggleThemeDropdown()" title="Change Theme" id="themeBtn">
+                                🌙
+                            </button>
+                            <div class="dropdown-menu" id="themeDropdown">
+                                <div class="dropdown-item" onclick="setTheme('dark')">
+                                    <span>🌙 Dark</span>
+                                </div>
+                                <div class="dropdown-item" onclick="setTheme('light')">
+                                    <span>☀️ Light</span>
+                                </div>
+                                <div class="dropdown-item" onclick="setTheme('neon')">
+                                    <span>💡 Neon</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Record Button -->
+                        <button class="control-btn record-btn" onclick="showRecordingOptions()" id="recordBtn" title="Record Video">
+                            ⏺
+                        </button>
+                        
+                        <!-- Fullscreen -->
+                        <button class="control-btn" onclick="toggleFullscreen()" title="Fullscreen (F)">
+                            ⛶
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- Recording Info Card -->
-    <div id="recordingInfoCard">
-        <div class="recording-info-header">
-            <span class="pulse-dot"></span>
-            <span>🔴 RECORDING IN PROGRESS</span>
-            <span class="pulse-dot"></span>
-        </div>
-        
-        <div class="recording-info-row">
-            <span class="recording-info-label">⏱️ Elapsed Time</span>
-            <span class="recording-info-value" id="elapsedTime">0:00</span>
-        </div>
-        
-        <div class="recording-info-row">
-            <span class="recording-info-label">📊 Progress</span>
-            <span class="recording-info-value" id="progressPercent">0%</span>
-        </div>
-        
-        <div class="recording-progress-bar">
-            <div class="recording-progress-fill" id="progressFill" style="width: 0%"></div>
-        </div>
-        
-        <div class="recording-info-row">
-            <span class="recording-info-label">📏 Scroll Distance</span>
-            <span class="recording-info-value" id="scrollDistance">0 px</span>
-        </div>
-        
-        <div class="recording-info-row">
-            <span class="recording-info-label">⚡ Current Speed</span>
-            <span class="recording-info-value" id="currentSpeed">1.0x</span>
-        </div>
-        
-        <div class="recording-info-row">
-            <span class="recording-info-label">🎯 Frames Captured</span>
-            <span class="recording-info-value" id="framesCaptured">0</span>
-        </div>
-        
-        <button class="recording-stop-btn" onclick="stopRecording()">⏹ STOP RECORDING</button>
-    </div>
+<!-- Hidden file input -->
+<input type="file" id="fileInput" accept=".txt,.html,.htm,.md,text/plain" style="display: none;">
+ 
 
-    <!-- Recording Options Popup -->
-    <div id="recordingOptions" class="recording-options">
-        <h3>📹 Video Recording Options</h3>
-        
-        <label>📱 Social Media Preset:</label>
-        <select id="socialPreset" onchange="applySocialPreset()">
-            <option value="">-- Select a preset --</option>
-            <option value="instagram_story">📸 Instagram Story (9:16, 1080x1920)</option>
-            <option value="instagram_reel">🎬 Instagram Reel (9:16, 1080x1920)</option>
-            <option value="instagram_post">🖼️ Instagram Post (1:1, 1080x1080)</option>
-            <option value="whatsapp_status">💬 WhatsApp Status (9:16, 1080x1920)</option>
-            <option value="tiktok">🎵 TikTok (9:16, 1080x1920)</option>
-            <option value="facebook_story">📘 Facebook Story (9:16, 1080x1920)</option>
-            <option value="youtube_shorts">▶️ YouTube Shorts (9:16, 1080x1920)</option>
-            <option value="snapchat">👻 Snapchat (9:16, 1080x1920)</option>
-            <option value="linkedin">💼 LinkedIn Post (16:9, 1920x1080)</option>
-            <option value="twitter">🐦 Twitter (16:9, 1280x720)</option>
-            <option value="custom">⚙️ Custom Settings</option>
-        </select>
-        
-        <div id="customSettings" style="display: none;">
-            <label>Resolution:</label>
-            <select id="recordResolution">
-                <option value="1920x1080">1080p (1920x1080) - 16:9</option>
-                <option value="1280x720">720p (1280x720) - 16:9</option>
-                <option value="1920x1920">Square (1920x1920) - 1:1</option>
-                <option value="1080x1920" selected>Portrait (1080x1920) - 9:16</option>
-                <option value="854x480">480p (854x480) - 16:9</option>
-                <option value="640x360">360p (640x360) - 16:9</option>
-                <option value="640x640">Square Small (640x640) - 1:1</option>
-            </select>
-        </div>
-        
-        <label>Frame Rate:</label>
-        <select id="recordFramerate">
-            <option value="60">60 fps - Smooth (Best for stories)</option>
-            <option value="30" selected>30 fps - Standard</option>
-            <option value="24">24 fps - Cinematic</option>
-            <option value="15">15 fps - Small file</option>
-        </select>
-        
-        <label>Video Quality:</label>
-        <select id="recordQuality">
-            <option value="12000000">12 Mbps - Professional</option>
-            <option value="8000000">8 Mbps - Best quality</option>
-            <option value="5000000" selected>5 Mbps - High quality</option>
-            <option value="2500000">2.5 Mbps - Medium quality</option>
-            <option value="1000000">1 Mbps - Small file</option>
-        </select>
-        
-        <label>⚡ Speed Multiplier (for recording):</label>
-        <select id="recordSpeed">
-            <option value="1" selected>1x - Normal speed</option>
-            <option value="0.5">0.5x - Half speed (slower scroll)</option>
-            <option value="0.75">0.75x - 75% speed</option>
-            <option value="1.25">1.25x - 25% faster</option>
-            <option value="1.5">1.5x - 50% faster</option>
-            <option value="2">2x - Double speed</option>
-        </select>
-        
-        <!-- MP4 Format Option - Direct Recording -->
-        <div style="margin: 20px 0; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid #4CAF50;">
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="radio" name="videoFormat" id="formatWebM" value="webm" checked style="width: 20px; height: 20px; margin: 0;">
-                <span style="font-size: 16px; font-weight: bold;">📹 WebM Format (Default)</span>
-            </label>
-            <p style="margin: 5px 0 10px 30px; font-size: 12px; color: #888;">
-                Best compatibility, smaller file size
-            </p>
+        <!-- Recording Info Card -->
+        <div id="recordingInfoCard">
+            <div class="recording-info-header">
+                <span class="pulse-dot"></span>
+                <span>🔴 RECORDING IN PROGRESS</span>
+                <span class="pulse-dot"></span>
+            </div>
             
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <input type="radio" name="videoFormat" id="formatMP4" value="mp4" style="width: 20px; height: 20px; margin: 0;">
-                <span style="font-size: 16px; font-weight: bold; color: #4CAF50;">🎬 MP4 Format (Direct Recording)</span>
-            </label>
-            <p style="margin: 5px 0 0 30px; font-size: 12px; color: #888;">
-                Universal compatibility with all devices. Records directly in MP4 if supported.
-            </p>
+            <div class="recording-info-row">
+                <span class="recording-info-label">⏱️ Elapsed Time</span>
+                <span class="recording-info-value" id="elapsedTime">0:00</span>
+            </div>
+            
+            <div class="recording-info-row">
+                <span class="recording-info-label">📊 Progress</span>
+                <span class="recording-info-value" id="progressPercent">0%</span>
+            </div>
+            
+            <div class="recording-progress-bar">
+                <div class="recording-progress-fill" id="recordingProgressFill" style="width: 0%"></div>
+            </div>
+            
+            <div class="recording-info-row">
+                <span class="recording-info-label">📏 Scroll Distance</span>
+                <span class="recording-info-value" id="scrollDistance">0 px</span>
+            </div>
+            
+            <div class="recording-info-row">
+                <span class="recording-info-label">⚡ Current Speed</span>
+                <span class="recording-info-value" id="recordingSpeed">1.0x</span>
+            </div>
+            
+            <div class="recording-info-row">
+                <span class="recording-info-label">🎯 Frames Captured</span>
+                <span class="recording-info-value" id="framesCaptured">0</span>
+            </div>
+            
+            <button class="recording-stop-btn" onclick="stopRecording()">⏹ STOP RECORDING</button>
         </div>
-        
-        <div style="margin-top: 15px; padding: 10px; background: rgba(255,68,68,0.1); border-radius: 8px;">
-            <p style="margin: 5px 0; font-size: 12px; color: #888;">
-                <span style="color: #ff4444;">📏</span> Total scroll distance: <span id="totalScrollDist">0</span>px<br>
-                <span style="color: #ff4444;">⏱️</span> Est. duration: <span id="estDuration">0</span> seconds
-            </p>
+
+        <!-- Recording Options Popup -->
+        <div id="recordingOptions" class="recording-options">
+            <h3>📹 Video Recording Options</h3>
+            
+            <label>📱 Social Media Preset:</label>
+            <select id="socialPreset" onchange="applySocialPreset()">
+                <option value="">-- Select a preset --</option>
+                <option value="instagram_story">📸 Instagram Story (9:16, 1080x1920)</option>
+                <option value="instagram_reel">🎬 Instagram Reel (9:16, 1080x1920)</option>
+                <option value="instagram_post">🖼️ Instagram Post (1:1, 1080x1080)</option>
+                <option value="whatsapp_status">💬 WhatsApp Status (9:16, 1080x1920)</option>
+                <option value="tiktok">🎵 TikTok (9:16, 1080x1920)</option>
+                <option value="facebook_story">📘 Facebook Story (9:16, 1080x1920)</option>
+                <option value="youtube_shorts">▶️ YouTube Shorts (9:16, 1080x1920)</option>
+                <option value="snapchat">👻 Snapchat (9:16, 1080x1920)</option>
+                <option value="linkedin">💼 LinkedIn Post (16:9, 1920x1080)</option>
+                <option value="twitter">🐦 Twitter (16:9, 1280x720)</option>
+                <option value="custom">⚙️ Custom Settings</option>
+            </select>
+            
+            <div id="customSettings" style="display: none;">
+                <label>Resolution:</label>
+                <select id="recordResolution">
+                    <option value="1920x1080">1080p (1920x1080) - 16:9</option>
+                    <option value="1280x720">720p (1280x720) - 16:9</option>
+                    <option value="1920x1920">Square (1920x1920) - 1:1</option>
+                    <option value="1080x1920" selected>Portrait (1080x1920) - 9:16</option>
+                    <option value="854x480">480p (854x480) - 16:9</option>
+                    <option value="640x360">360p (640x360) - 16:9</option>
+                    <option value="640x640">Square Small (640x640) - 1:1</option>
+                </select>
+            </div>
+            
+            <label>Frame Rate:</label>
+            <select id="recordFramerate">
+                <option value="60">60 fps - Smooth (Best for stories)</option>
+                <option value="30" selected>30 fps - Standard</option>
+                <option value="24">24 fps - Cinematic</option>
+                <option value="15">15 fps - Small file</option>
+            </select>
+            
+            <label>Video Quality:</label>
+            <select id="recordQuality">
+                <option value="12000000">12 Mbps - Professional</option>
+                <option value="8000000">8 Mbps - Best quality</option>
+                <option value="5000000" selected>5 Mbps - High quality</option>
+                <option value="2500000">2.5 Mbps - Medium quality</option>
+                <option value="1000000">1 Mbps - Small file</option>
+            </select>
+            
+            <!-- MP4 Format Option - Direct Recording -->
+            <div style="margin: 20px 0; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid #4CAF50;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="radio" name="videoFormat" id="formatWebM" value="webm" checked style="width: 20px; height: 20px; margin: 0;">
+                    <span style="font-size: 16px; font-weight: bold;">📹 WebM Format (Default)</span>
+                </label>
+                <p style="margin: 5px 0 10px 30px; font-size: 12px; color: #888;">
+                    Best compatibility, smaller file size
+                </p>
+                
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="radio" name="videoFormat" id="formatMP4" value="mp4" style="width: 20px; height: 20px; margin: 0;">
+                    <span style="font-size: 16px; font-weight: bold; color: #4CAF50;">🎬 MP4 Format (Direct Recording)</span>
+                </label>
+                <p style="margin: 5px 0 0 30px; font-size: 12px; color: #888;">
+                    Universal compatibility with all devices. Records directly in MP4 if supported.
+                </p>
+            </div>
+            
+            <div style="margin-top: 15px; padding: 10px; background: rgba(255,68,68,0.1); border-radius: 8px;">
+                <p style="margin: 5px 0; font-size: 12px; color: #888;">
+                    <span style="color: #ff4444;">📏</span> Total scroll distance: <span id="totalScrollDist">0</span>px<br>
+                    <span style="color: #ff4444;">⏱️</span> Est. duration: <span id="estDuration">0</span> seconds
+                </p>
+            </div>
+            
+            <br>
+            <button onclick="startRecording()" style="background: #ff4444;">▶️ Start Recording</button>
+            <button onclick="hideRecordingOptions()">✖️ Cancel</button>
         </div>
-        
-        <br>
-        <button onclick="startRecording()" style="background: #ff4444;">▶️ Start Recording</button>
-        <button onclick="hideRecordingOptions()">✖️ Cancel</button>
+
+        <!-- Loading Overlay for Recording -->
+        <div id="recordingOverlay">
+            <div class="spinner"></div>
+            <div>Processing video...</div>
+        </div>
+
+        <!-- Popup for Text Input -->
+        <div id="popup">
+            <h3>📝 Enter Text (Plain / Markdown / HTML)</h3>
+            <textarea id="newText" placeholder="Enter your text here..."></textarea>
+            <div id="previewBox"></div>
+            <br>
+            <button onclick="saveText()">💾 Save</button>
+            <button onclick="closePopup()">✖️ Cancel</button>
+        </div>
     </div>
 
-    <!-- Loading Overlay for Recording -->
-    <div id="recordingOverlay">
-        <div class="spinner"></div>
-        <div>Processing video...</div>
-    </div>
-
-    <!-- Popup for Text Input -->
-    <div id="popup">
-        <h3>📝 Enter Text (Plain / Markdown / HTML)</h3>
-        <textarea id="newText" placeholder="Enter your text here..."></textarea>
-        <div id="previewBox"></div>
-        <br>
-        <button onclick="saveText()">💾 Save</button>
-        <button onclick="closePopup()">✖️ Cancel</button>
-    </div>
-
-    <!-- html2canvas for DOM capture -->
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Main JavaScript -->
     <script src="js/app.js"></script>
+
+    <!-- Add PDF.js library for PDF support -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+<!-- Hidden file input with more formats -->
+<input type="file" id="fileInput" accept=".txt,.html,.htm,.md,.pdf,text/plain,application/pdf" style="display: none;">
 </body>
 </html>
