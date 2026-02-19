@@ -2,18 +2,30 @@
     --bg: #111;
     --fg: #eee;
     --accent: #4ea1ff;
+    --player-bg: #000;
+    --control-bg: rgba(0,0,0,0.6);
+    --control-hover: rgba(255,255,255,0.1);
+    --progress-bg: rgba(255,255,255,0.2);
+    --progress-fill: #ff4444;
 }
 
 body.light {
     --bg: #f5f5f5;
     --fg: #222;
     --accent: #0077cc;
+    --player-bg: #ddd;
+    --control-bg: rgba(255,255,255,0.8);
+    --control-hover: rgba(0,0,0,0.1);
+    --progress-bg: rgba(0,0,0,0.2);
 }
 
 body.neon {
     --bg: #000;
     --fg: #0ff;
     --accent: #f0f;
+    --player-bg: #000;
+    --control-bg: rgba(0,0,0,0.8);
+    --progress-fill: #f0f;
 }
 
 body {
@@ -21,11 +33,15 @@ body {
     background: var(--bg);
     color: var(--fg);
     font-family: Arial, sans-serif;
+    transition: background 0.3s, color 0.3s;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+
+.app-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    transition: background 0.3s, color 0.3s;
-    -webkit-tap-highlight-color: transparent;
 }
 
 /* Menu Bar Container */
@@ -145,16 +161,35 @@ button:active {
     100% { opacity: 1; }
 }
 
-#viewer {
+/* YouTube-style Video Player */
+.video-player-container {
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: var(--bg);
+}
+
+.video-player {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    background: var(--player-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.video-screen {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     position: relative;
-    background: var(--bg);
-    touch-action: pan-y pinch-zoom;
-    will-change: transform;
+    background: var(--player-bg);
     transform: translateZ(0);
     backface-visibility: hidden;
-    perspective: 1000px;
 }
 
 #scrollText {
@@ -191,6 +226,157 @@ pre {
     font-weight: bold;
     text-shadow: 0 0 15px var(--accent);
     transform: scale(1.05);
+}
+
+/* Video Controls Overlay */
+.video-controls-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.video-player:hover .video-controls-overlay,
+.video-controls-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.controls-top-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+    pointer-events: none;
+}
+
+.center-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 68px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: auto;
+}
+
+.center-play-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.center-play-btn svg {
+    width: 48px;
+    height: 48px;
+    fill: white;
+}
+
+.controls-bar {
+    padding: 16px;
+}
+
+.progress-container {
+    width: 100%;
+    margin-bottom: 8px;
+    cursor: pointer;
+    position: relative;
+    height: 12px;
+}
+
+.progress-bg {
+    width: 100%;
+    height: 4px;
+    background: var(--progress-bg);
+    border-radius: 2px;
+    position: relative;
+    transition: height 0.2s;
+}
+
+.progress-container:hover .progress-bg {
+    height: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--progress-fill);
+    border-radius: 2px;
+    position: relative;
+    width: 0%;
+}
+
+.progress-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--progress-fill);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.progress-container:hover .progress-handle {
+    opacity: 1;
+}
+
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-controls, .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 8px;
+    min-width: auto;
+    min-height: auto;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.control-btn:hover {
+    background: var(--control-hover);
+    transform: none;
+    box-shadow: none;
+}
+
+.speed-indicator {
+    color: white;
+    font-size: 14px;
+    padding: 4px 8px;
+    background: var(--control-bg);
+    border-radius: 4px;
+}
+
+.time-indicator {
+    color: white;
+    font-size: 14px;
+    margin-left: 8px;
 }
 
 /* Popup */
@@ -245,33 +431,31 @@ pre {
 #recordingInfoCard {
     position: fixed;
     top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 20px;
     background: rgba(0,0,0,0.95);
     border: 2px solid #ff4444;
     border-radius: 12px;
-    padding: 15px 25px;
+    padding: 15px;
     z-index: 1000;
     display: none;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 30px rgba(255,68,68,0.3);
-    min-width: 280px;
-    text-align: center;
-    animation: slideDown 0.3s ease-out;
+    min-width: 250px;
+    animation: slideIn 0.3s ease-out;
 }
 
 #recordingInfoCard.show {
     display: block;
 }
 
-@keyframes slideDown {
+@keyframes slideIn {
     from {
-        top: -100px;
+        right: -300px;
         opacity: 0;
     }
     to {
-        top: 60px;
+        right: 20px;
         opacity: 1;
     }
 }
@@ -284,12 +468,12 @@ pre {
     margin-bottom: 15px;
     color: #ff4444;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .recording-info-header .pulse-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     background: #ff4444;
     border-radius: 50%;
     animation: pulse-recording 1s infinite;
@@ -304,29 +488,28 @@ pre {
 .recording-info-row {
     display: flex;
     justify-content: space-between;
-    margin: 10px 0;
-    padding: 8px 0;
+    margin: 8px 0;
+    padding: 5px 0;
     border-bottom: 1px solid #333;
+    font-size: 13px;
 }
 
 .recording-info-label {
     color: #888;
-    font-size: 14px;
 }
 
 .recording-info-value {
     color: var(--accent);
     font-weight: bold;
-    font-size: 16px;
     font-family: monospace;
 }
 
 .recording-progress-bar {
     width: 100%;
-    height: 6px;
+    height: 4px;
     background: #333;
-    border-radius: 3px;
-    margin: 15px 0 5px 0;
+    border-radius: 2px;
+    margin: 10px 0;
     overflow: hidden;
 }
 
@@ -335,19 +518,19 @@ pre {
     background: #ff4444;
     width: 0%;
     transition: width 0.1s linear;
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .recording-stop-btn {
     background: #ff4444;
     color: white;
     border: none;
-    padding: 12px 30px;
-    border-radius: 25px;
+    padding: 10px;
+    border-radius: 6px;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
-    margin-top: 15px;
+    margin-top: 10px;
     transition: all 0.2s;
     width: 100%;
     animation: pulse 1s infinite;
@@ -365,13 +548,13 @@ pre {
     left: 10px;
     background: #ff0000;
     color: white;
-    padding: 8px 15px;
-    border-radius: 30px;
-    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
     font-weight: bold;
     display: none;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     z-index: 100;
     animation: pulse 1s infinite;
     box-shadow: 0 2px 10px rgba(0,0,0,0.5);
@@ -382,8 +565,8 @@ pre {
 }
 
 .recording-indicator .dot {
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     background: white;
     border-radius: 50%;
     animation: blink 1s infinite;
@@ -411,19 +594,19 @@ pre {
 .recording-options input, 
 .recording-options select {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     margin: 8px 0;
     background: #333;
     color: var(--fg);
     border: 1px solid var(--accent);
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 6px;
+    font-size: 14px;
     box-sizing: border-box;
 }
 
 .recording-options button {
     margin: 10px 5px 0 0;
-    min-width: 120px;
+    min-width: 100px;
 }
 
 /* Mobile optimizations */
@@ -434,26 +617,37 @@ pre {
     }
     
     button, select {
-        padding: 10px 12px;
-        font-size: 13px;
-        min-width: 40px;
-        min-height: 40px;
+        padding: 8px 10px;
+        font-size: 12px;
+        min-width: 36px;
+        min-height: 36px;
     }
     
     .menu-toggle {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
     }
     
     #scrollText {
-        font-size: 24px;
+        font-size: 20px;
     }
     
     #recordingInfoCard {
-        width: 90%;
-        top: 50px;
-        padding: 12px;
+        top: 10px;
+        right: 10px;
+        min-width: 200px;
+        padding: 10px;
+    }
+    
+    .center-play-btn {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .center-play-btn svg {
+        width: 32px;
+        height: 32px;
     }
 }
 
@@ -487,7 +681,7 @@ pre {
     border-top: 5px solid var(--accent);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 15px;
+    margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -495,7 +689,29 @@ pre {
     100% { transform: rotate(360deg); }
 }
 
-/* Improved text rendering */
+/* Update the video player to ensure text scrolls above controls */
+.video-player {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    background: var(--player-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.video-screen {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: var(--player-bg);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    cursor: pointer; /* Indicate clickable area */
+}
+
 #scrollText {
     position: absolute;
     width: 100%;
@@ -504,41 +720,968 @@ pre {
     line-height: 1.5;
     padding: 0 10px;
     box-sizing: border-box;
+    pointer-events: none; /* Allows clicks to pass through to video-screen */
+    user-select: none;
+    -webkit-user-select: none;
+    will-change: top;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    z-index: 5; /* Ensures text is above background but below controls */
+}
+
+/* Video Controls Overlay - now with higher z-index to appear above text */
+.video-controls-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 10; /* Higher than text */
+}
+
+.video-player:hover .video-controls-overlay,
+.video-controls-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Center play button - above text but below controls overlay */
+.center-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 68px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: auto;
+    z-index: 8; /* Below controls overlay but above text */
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.center-play-btn:hover {
+    background: rgba(255,68,68,0.8);
+    transform: translate(-50%, -50%) scale(1.1);
+    border-color: white;
+}
+
+.center-play-btn svg {
+    width: 48px;
+    height: 48px;
+    fill: white;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Recording Info Card - ensure it's above everything */
+#recordingInfoCard {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: rgba(0,0,0,0.95);
+    border: 2px solid #ff4444;
+    border-radius: 12px;
+    padding: 15px;
+    z-index: 1000; /* Highest z-index */
+    display: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(255,68,68,0.3);
+    min-width: 250px;
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Menu container - ensure it's above video */
+.menu-container {
+    position: relative;
+    z-index: 100; /* Above video */
+}
+
+/* Loading overlay - above everything */
+#recordingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Highest */
+    color: white;
+    font-size: 20px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    flex-direction: column;
+}
+
+/* Popups - high z-index */
+#popup, #recordingOptions {
+    z-index: 500; /* Above video but below overlays */
+}
+
+/* Click indicator for video screen */
+.video-screen:active {
+    opacity: 0.98;
+    transition: opacity 0.1s;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .center-play-btn {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .center-play-btn svg {
+        width: 32px;
+        height: 32px;
+    }
+    
+    #recordingInfoCard {
+        top: 10px;
+        right: 10px;
+        min-width: 200px;
+        padding: 12px;
+    }
+}
+
+/* Fullscreen styles */
+.video-player.fullscreen {
+    max-width: none;
+    border-radius: 0;
+}
+
+.video-player.fullscreen .video-screen {
+    border-radius: 0;
+}
+
+/* Ensure text is readable in fullscreen */
+.video-player.fullscreen #scrollText {
+    font-size: calc(32px + 2vw);
+}
+
+/* Keyboard shortcut hint (optional) */
+.keyboard-hint {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.5);
+    color: rgba(255,255,255,0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 50;
+    pointer-events: none;
+}
+
+/* Update video player for fixed control bar */
+.video-player {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    background: var(--player-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.video-screen {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--player-bg);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    cursor: pointer;
+}
+
+#scrollText {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.5;
+    padding: 20px 10px 80px 10px; /* Add bottom padding to scroll above control bar */
+    box-sizing: border-box;
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
     will-change: top;
     transform: translateZ(0);
     backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
+    z-index: 5;
 }
 
-.karaoke-word {
-    transition: color 0.2s, font-weight 0.2s, text-shadow 0.2s;
+/* YouTube-style Fixed Control Bar */
+.video-control-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7), transparent);
+    padding: 10px 16px 16px 16px;
+    z-index: 20;
+    pointer-events: auto;
+    transition: opacity 0.3s;
+    opacity: 1;
+}
+
+/* Auto-hide when playing */
+.video-player.playing .video-control-bar {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.video-player.playing:hover .video-control-bar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.control-bar-content {
+    width: 100%;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 100%;
+    margin-bottom: 12px;
+    cursor: pointer;
+    position: relative;
+    height: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.progress-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    position: relative;
+    transition: height 0.2s;
+}
+
+.progress-container:hover .progress-bg {
+    height: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #ff4444;
+    border-radius: 2px;
+    position: relative;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.progress-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: #ff4444;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.progress-container:hover .progress-handle {
+    opacity: 1;
+}
+
+/* Controls Row */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.left-controls, .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Control Buttons */
+.control-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 8px 12px;
+    min-width: auto;
+    min-height: auto;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1);
+}
+
+.control-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}
+
+.control-btn.record-btn {
+    background: rgba(255,68,68,0.3);
+    color: #ff4444;
+    animation: none;
+}
+
+.control-btn.record-btn:hover {
+    background: rgba(255,68,68,0.5);
+}
+
+.control-btn.record-btn.recording {
+    background: #ff4444;
+    color: white;
+    animation: pulse 1s infinite;
+}
+
+.control-badge {
+    background: rgba(255,255,255,0.15);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: white;
+    font-weight: 500;
+    min-width: 50px;
+    text-align: center;
+}
+
+.time-indicator {
+    color: white;
+    font-size: 14px;
+    margin-left: 4px;
+    font-family: monospace;
+    background: rgba(0,0,0,0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Dropdown Menus */
+.dropdown-container {
+    position: relative;
     display: inline-block;
-    white-space: nowrap; /* Prevents words from breaking */
 }
 
-/* Preset-specific text sizing */
-.instagram-story-text,
-.whatsapp-status-text,
-.tiktok-text {
-    font-size: clamp(24px, 5vw, 48px);
+.dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(30,30,30,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 160px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: none;
+    z-index: 30;
+    margin-bottom: 8px;
 }
 
-.instagram-post-text {
-    font-size: clamp(20px, 4vw, 40px);
+.dropdown-menu.show {
+    display: block;
 }
 
-.linkedin-text {
-    font-size: clamp(18px, 3vw, 36px);
+.dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Ensure proper spacing */
-#scrollText div {
-    margin: 0;
-    padding: 0;
+.dropdown-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.dropdown-item span {
+    flex: 1;
+}
+
+/* Center Play Button */
+.center-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 68px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: auto;
+    z-index: 15;
+    border: 2px solid rgba(255,255,255,0.3);
+    opacity: 1;
+}
+
+.video-player.playing .center-play-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.center-play-btn:hover {
+    background: #ff4444;
+    transform: translate(-50%, -50%) scale(1.1);
+    border-color: white;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .left-controls, .right-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .control-btn {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+    
+    .control-badge {
+        font-size: 12px;
+        padding: 3px 6px;
+        min-width: 40px;
+    }
+    
+    .time-indicator {
+        font-size: 12px;
+    }
+    
+    .center-play-btn {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .center-play-btn svg {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Branding Banner */
+.branding-banner {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 8px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 50;
+}
+
+body.light .branding-banner {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    border-bottom: 2px solid var(--accent);
+}
+
+body.neon .branding-banner {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    border-bottom: 2px solid var(--accent);
+    box-shadow: 0 2px 20px rgba(255,0,255,0.3);
+}
+
+.branding-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.branding-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.branding-logo {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    animation: gentle-bounce 2s infinite ease-in-out;
+}
+
+@keyframes gentle-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.branding-name {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), #ff8c8c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.branding-tagline {
+    font-size: 14px;
+    color: #888;
+    font-style: italic;
+    border-left: 2px solid var(--accent);
+    padding-left: 12px;
+    margin-left: 4px;
+}
+
+.branding-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.branding-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--fg);
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: auto;
+    min-height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.branding-btn:hover {
+    background: var(--accent);
+    color: #000;
+    transform: scale(1.05);
+    border-color: var(--accent);
+}
+
+/* Update video player container */
+.video-player-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: var(--bg);
+}
+
+.video-player {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    background: var(--player-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.video-player:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent);
+}
+
+.video-screen {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--player-bg);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    cursor: pointer;
+    outline: none;
+}
+
+.video-screen:focus {
+    outline: none;
+}
+
+#scrollText {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    white-space: normal;
     line-height: 1.5;
+    padding: 20px 10px 80px 10px;
+    box-sizing: border-box;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    will-change: top;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    z-index: 5;
+}
+
+/* YouTube-style Fixed Control Bar - hidden by default */
+.video-control-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8), transparent);
+    padding: 10px 16px 16px 16px;
+    z-index: 20;
+    pointer-events: auto;
+    transition: opacity 0.3s, transform 0.3s;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+/* Show controls when video player has focus */
+.video-player:focus-within .video-control-bar,
+.video-player:hover .video-control-bar {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Also show when playing and hover */
+.video-player.playing:hover .video-control-bar {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hide center play button when playing */
+.video-player.playing .center-play-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Center Play Button */
+.center-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 68px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: auto;
+    z-index: 15;
+    border: 2px solid rgba(255,255,255,0.3);
+    opacity: 1;
+}
+
+.center-play-btn:hover {
+    background: #ff4444;
+    transform: translate(-50%, -50%) scale(1.1);
+    border-color: white;
+}
+
+/* Progress Bar */
+.progress-container {
+    width: 100%;
+    margin-bottom: 12px;
+    cursor: pointer;
+    position: relative;
+    height: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.progress-bg {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    position: relative;
+    transition: height 0.2s;
+}
+
+.progress-container:hover .progress-bg {
+    height: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #ff4444;
+    border-radius: 2px;
+    position: relative;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.progress-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: #ff4444;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.progress-container:hover .progress-handle {
+    opacity: 1;
+}
+
+/* Controls Row */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.left-controls, .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Control Buttons */
+.control-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 8px 12px;
+    min-width: auto;
+    min-height: auto;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}
+
+.control-btn.record-btn {
+    background: rgba(255,68,68,0.3);
+    color: #ff4444;
+}
+
+.control-btn.record-btn:hover {
+    background: rgba(255,68,68,0.5);
+}
+
+.control-btn.record-btn.recording {
+    background: #ff4444;
+    color: white;
+    animation: pulse 1s infinite;
+}
+
+.control-badge {
+    background: rgba(255,255,255,0.15);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: white;
+    font-weight: 500;
+    min-width: 50px;
+    text-align: center;
+}
+
+.time-indicator {
+    color: white;
+    font-size: 14px;
+    margin-left: 4px;
+    font-family: monospace;
+    background: rgba(0,0,0,0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Dropdown Menus */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(30,30,30,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 160px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: none;
+    z-index: 30;
+    margin-bottom: 8px;
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .branding-name {
+        font-size: 18px;
+    }
+    
+    .branding-tagline {
+        display: none;
+    }
+    
+    .branding-btn {
+        padding: 6px 10px;
+        font-size: 16px;
+    }
+    
+    .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .left-controls, .right-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .control-btn {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+    
+    .control-badge {
+        font-size: 12px;
+        padding: 3px 6px;
+        min-width: 40px;
+    }
+    
+    .time-indicator {
+        font-size: 12px;
+    }
+    
+    .center-play-btn {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .center-play-btn svg {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
